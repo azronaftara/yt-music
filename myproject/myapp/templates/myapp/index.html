@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Audio Fetcher</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link ke CSS jika ada -->
+    <script src="{% static 'js/main.js' %}" defer></script>
+    <style>
+        /* CSS inline untuk contoh */
+        #loading {
+            display: none;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fetch Audio from YouTube Video</h1>
+    
+    <!-- Formulir Input URL YouTube -->
+    <form id="fetchAudioForm">
+        <label for="youtubeUrl">YouTube URL:</label>
+        <input type="text" id="youtubeUrl" name="youtubeUrl" required>
+        <button type="submit" id="fetchButton">Fetch Audio</button>
+    </form>
+    
+    <!-- Indikator Pemuatan -->
+    <div id="loading">Loading...</div>
+    
+    <!-- Elemen Audio untuk Pemutaran -->
+    <div id="result">
+        <audio id="audioPlayer" controls loop>
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    
+    <!-- Script JavaScript untuk Mengelola Formulir dan Pemutaran Audio -->
+    <script>
+        document.getElementById('fetchAudioForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            document.getElementById('loading').style.display = 'block';  // Show loading
+            
+            const url = document.getElementById('youtubeUrl').value;
+            
+            fetch('/fetch_audio/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url }),
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const audioPlayer = document.getElementById('audioPlayer');
+                const blobUrl = URL.createObjectURL(blob);
+                audioPlayer.src = blobUrl;
+                audioPlayer.play();
+                document.getElementById('loading').style.display = 'none';  // Hide loading
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';  // Hide loading
+            });
+        });
+    </script>
+</body>
+</html>
